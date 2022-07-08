@@ -1,4 +1,6 @@
+from django.contrib import messages, auth
 from django.contrib.auth.models import User
+from django.contrib.messages import constants
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from autenticacao.utils import password_is_valid, email_is_valid, username_is_valid
@@ -6,8 +8,12 @@ from autenticacao.utils import password_is_valid, email_is_valid, username_is_va
 
 # Create your views here.
 def cadastro(request):
+    if request.user.is_authenticated:
+        return redirect('/')
+
     if request.method == "GET":
         return render(request, 'cadastro.html')
+
     elif request.method == "POST":
         usuario = request.POST.get('usuario')
         email = request.POST.get('email')
@@ -23,10 +29,33 @@ def cadastro(request):
                                             password=senha,
                                             is_active=False)
             user.save()
+            messages.add_message(request, constants.SUCCESS, 'Usuário Cadastrado com sucesso!')
             return redirect('/auth/logar')
         except:
+            messages.add_message(request, constants.ERROR,
+                                 'Erro ao tentar cadastrar usuário... Tente novamente mais tarde.')
             return redirect('/auth/cadastro')
 
 
 def logar(request):
-    return HttpResponse("Página de logar")
+    if request.user.is_authenticated:
+        return redirect('/')
+
+    if request.method == "GET":
+        return render(request, 'login.html')
+    elif request.method == "POST":
+        username = request.POST.get('usuario')
+        senha = request.POST.get('senha')
+        user = auth.authenticate(username=username, password=senha)
+        if not user:
+            messages.add_message(request, constants.ERROR, f'Usuário ou senha inválidos{username, senha, user}')
+            return redirect('/auth/logar')
+        else:
+            auth.login(request, user)
+            # return redirect('/')
+            return HttpResponse("Página de logar")
+
+
+def sair(request):
+    auth.logout(request)
+    return redirect('/auth/logar')
