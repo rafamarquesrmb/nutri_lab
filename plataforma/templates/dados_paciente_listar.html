@@ -16,7 +16,7 @@
     </button>
 
     <br>
-    <br>
+    <h1 class="titulo">Escolha o paciente</h1>
     <div class="row">
         {% for paciente in pacientes %}
             <div class="col-md-4">
@@ -32,6 +32,8 @@
                         <br>
                         <p class="dados">{{ paciente.nome }}</p>
                         <p class="dados">{{ paciente.idade }} Anos</p>
+                        <p class="dados">email: {{ paciente.email }}</p>
+                        <p class="dados">telefone: {{ paciente.telefone }}</p>
                     </div>
                 </a>
             </div>
