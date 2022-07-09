@@ -4,7 +4,6 @@ from django.contrib import messages, auth
 from django.contrib.auth.models import User
 from django.contrib.messages import constants
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse
 from autenticacao.utils import password_is_valid, email_is_valid, username_is_valid, email_html
 from autenticacao.models import Ativacao
 from hashlib import sha256
@@ -66,8 +65,7 @@ def logar(request):
 
         else:
             auth.login(request, user)
-            # return redirect('/')
-            return HttpResponse("Página de logar")
+            return redirect('/')
 
 
 def sair(request):
