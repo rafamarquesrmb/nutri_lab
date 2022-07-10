@@ -1,7 +1,7 @@
 from django.contrib import messages
 from django.contrib.messages import constants
 
-from plataforma.models import Pacientes
+from plataforma.models import Pacientes, DadosPaciente
 
 
 def pacientes_validate(request, nome, sexo, idade, email, telefone):
@@ -20,4 +20,20 @@ def pacientes_validate(request, nome, sexo, idade, email, telefone):
         messages.add_message(request, constants.ERROR, 'Já existe um paciente com esse E-mail')
         return False
 
+    return True
+
+
+def dados_paciente_validate(request, peso, altura, percentual_gordura, percentual_musculo, colesterol_hdl,
+                            colesterol_ldl, colesterol_total, trigliceridios):
+    if not (
+            peso.isnumeric()
+            and altura.isnumeric()
+            and percentual_gordura.isnumeric()
+            and percentual_musculo.isnumeric()
+            and colesterol_hdl.isnumeric()
+            and colesterol_ldl.isnumeric()
+            and colesterol_total.isnumeric()
+            and trigliceridios.isnumeric()):
+        messages.add_message(request, constants.ERROR, 'É necessário preencher todos os dados.')
+        return False
     return True

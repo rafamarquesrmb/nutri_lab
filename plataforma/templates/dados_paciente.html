@@ -47,15 +47,20 @@
             <th scope="col">Altura</th>
             <th scope="col">% gordura</th>
             <th scope="col">% músculo</th>
+            <th scope="col">Data</th>
         </tr>
         </thead>
         <tbody>
-        <tr>
-            <th scope="row">58 Kg</th>
-            <td>173 cm</td>
-            <td>19%</td>
-            <td>25%</td>
-        </tr>
+        {% for dados in dados_paciente %}
+            <tr>
+                <th scope="row">{{ dados.peso }} Kg</th>
+                <td>{{ dados.altura }} cm</td>
+                <td>{{ dados.percentual_gordura }}%</td>
+                <td>{{ dados.percentual_musculo }}%</td>
+                <td>{{ dados.data | date }}</td>
+            </tr>
+        {% endfor %}
+
 
         </tbody>
     </table>
