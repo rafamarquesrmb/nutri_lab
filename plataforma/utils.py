@@ -4,7 +4,7 @@ from django.contrib.messages import constants
 from plataforma.models import Pacientes, DadosPaciente
 
 
-def pacientes_validate(request, nome, sexo, idade, email, telefone):
+def pacientes_validate(request, nutri, nome, sexo, idade, email, telefone):
     if (len(nome.strip()) == 0) or (len(sexo.strip()) == 0) or (len(idade.strip()) == 0) or (
             len(email.strip()) == 0) or (len(telefone.strip()) == 0):
         messages.add_message(request, constants.ERROR, 'Preencha todos os campos')
@@ -14,9 +14,7 @@ def pacientes_validate(request, nome, sexo, idade, email, telefone):
         messages.add_message(request, constants.ERROR, 'Digite uma idade válida')
         return False
 
-    pacientes = Pacientes.objects.filter(email=email)
-    # TODO: a verificação só deve ser aplicada para os pacientes do usuário.
-    # TODO: Em caso de outro usuário, pode cadastrar um e-mail similar.
+    pacientes = Pacientes.objects.filter(nutri=nutri).filter(email=email)
     if pacientes.exists():
         messages.add_message(request, constants.ERROR, 'Já existe um paciente com esse E-mail')
         return False

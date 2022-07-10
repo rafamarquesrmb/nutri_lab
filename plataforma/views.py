@@ -26,7 +26,13 @@ def pacientes(request):
         email = request.POST.get("email")
         telefone = request.POST.get("telefone")
 
-        if not pacientes_validate(request, nome, sexo, idade, email, telefone):
+        if not pacientes_validate(request,
+                                  nutri=request.user,
+                                  nome=nome,
+                                  sexo=sexo,
+                                  idade=idade,
+                                  email=email,
+                                  telefone=telefone):
             return redirect('/pacientes/')
 
         try:
@@ -83,22 +89,25 @@ def dados_paciente(request, id):
         if not dados_paciente_validate(request, peso, altura, gordura, musculo, hdl,
                                        ldl, colesterol_total, trigliceridios):
             return redirect(f'/dados_paciente/{paciente.id}')
+        try:
+            dados = DadosPaciente(paciente=paciente,
+                                  data=datetime.now(),
+                                  peso=peso,
+                                  altura=altura,
+                                  percentual_gordura=gordura,
+                                  percentual_musculo=musculo,
+                                  colesterol_hdl=hdl,
+                                  colesterol_ldl=ldl,
+                                  colesterol_total=colesterol_total,
+                                  trigliceridios=trigliceridios)
 
-        dados = DadosPaciente(paciente=paciente,
-                              data=datetime.now(),
-                              peso=peso,
-                              altura=altura,
-                              percentual_gordura=gordura,
-                              percentual_musculo=musculo,
-                              colesterol_hdl=hdl,
-                              colesterol_ldl=ldl,
-                              colesterol_total=colesterol_total,
-                              trigliceridios=trigliceridios)
+            dados.save()
 
-        dados.save()
-
-        messages.add_message(request, constants.SUCCESS, 'Dados cadastrado com sucesso')
-        return redirect(f'/dados_paciente/{paciente.id}')
+            messages.add_message(request, constants.SUCCESS, 'Dados cadastrado com sucesso')
+            return redirect(f'/dados_paciente/{paciente.id}')
+        except:
+            messages.add_message(request, constants.ERROR, 'Erro interno... Por favor, tente novamente.')
+            return redirect(f'/dados_paciente/{paciente.id}')
 
 
 @login_required(login_url='/auth/logar/')
@@ -152,17 +161,21 @@ def refeicao(request, id_paciente):
         proteinas = request.POST.get('proteinas')
         gorduras = request.POST.get('gorduras')
 
-        nova_refeicao = Refeicao(paciente=paciente,
-                                 titulo=titulo,
-                                 horario=horario,
-                                 carboidratos=carboidratos,
-                                 proteinas=proteinas,
-                                 gorduras=gorduras)
+        try:
+            nova_refeicao = Refeicao(paciente=paciente,
+                                     titulo=titulo,
+                                     horario=horario,
+                                     carboidratos=carboidratos,
+                                     proteinas=proteinas,
+                                     gorduras=gorduras)
 
-        nova_refeicao.save()
+            nova_refeicao.save()
 
-        messages.add_message(request, constants.SUCCESS, 'Refeição cadastrada')
-        return redirect(f'/plano_alimentar/{id_paciente}')
+            messages.add_message(request, constants.SUCCESS, 'Refeição cadastrada')
+            return redirect(f'/plano_alimentar/{id_paciente}')
+        except:
+            messages.add_message(request, constants.ERROR, 'Erro Interno do sistema, por favor, tente novamente.')
+            return redirect(f'/plano_alimentar/{id_paciente}')
 
 
 @login_required(login_url='/auth/logar/')
@@ -176,9 +189,13 @@ def opcao(request, id_paciente):
         imagem = request.FILES.get('imagem')
         descricao = request.POST.get('descricao')
 
-        nova_opcao = Opcao(refeicao_id=id_refeicao,
-                           imagem=imagem,
-                           descricao=descricao)
-        nova_opcao.save()
-        messages.add_message(request, constants.SUCCESS, 'Opção cadastrada com sucesso!')
-        return redirect(f'/plano_alimentar/{id_paciente}')
+        try:
+            nova_opcao = Opcao(refeicao_id=id_refeicao,
+                               imagem=imagem,
+                               descricao=descricao)
+            nova_opcao.save()
+            messages.add_message(request, constants.SUCCESS, 'Opção cadastrada com sucesso!')
+            return redirect(f'/plano_alimentar/{id_paciente}')
+        except:
+            messages.add_message(request, constants.ERROR, 'Erro Interno do sistema, por favor, tente novamente.')
+            return redirect(f'/plano_alimentar/{id_paciente}')
