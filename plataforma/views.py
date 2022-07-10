@@ -8,7 +8,7 @@ from django.contrib.messages import constants
 from django.views.decorators.csrf import csrf_exempt
 
 from plataforma.utils import pacientes_validate, dados_paciente_validate
-from plataforma.models import Pacientes, DadosPaciente
+from plataforma.models import Pacientes, DadosPaciente, Refeicao, Opcao
 
 
 @login_required(login_url='/auth/logar/')
@@ -131,9 +131,54 @@ def plano_alimentar(request, id):
         messages.add_message(request, constants.ERROR, 'Paciente não encontrado.')
         return redirect('/plano_alimentar_listar/')
     if request.method == "GET":
+        refeicoes = paciente.refeicao_set.all()
         context = {
-            'pacientes': paciente
+            'paciente': paciente,
+            'refeicoes': refeicoes,
         }
         return render(request, 'plano_alimentar.html', context)
 
 
+@login_required(login_url='/auth/logar/')
+def refeicao(request, id_paciente):
+    paciente = Pacientes.objects.filter(nutri=request.user).filter(id=id_paciente).first()
+    if not paciente:
+        messages.add_message(request, constants.ERROR, 'Paciente não encontrado.')
+        return redirect('/plano_alimentar_listar/')
+    if request.method == "POST":
+        titulo = request.POST.get('titulo')
+        horario = request.POST.get('horario')
+        carboidratos = request.POST.get('carboidratos')
+        proteinas = request.POST.get('proteinas')
+        gorduras = request.POST.get('gorduras')
+
+        nova_refeicao = Refeicao(paciente=paciente,
+                                 titulo=titulo,
+                                 horario=horario,
+                                 carboidratos=carboidratos,
+                                 proteinas=proteinas,
+                                 gorduras=gorduras)
+
+        nova_refeicao.save()
+
+        messages.add_message(request, constants.SUCCESS, 'Refeição cadastrada')
+        return redirect(f'/plano_alimentar/{id_paciente}')
+
+
+@login_required(login_url='/auth/logar/')
+def opcao(request, id_paciente):
+    paciente = Pacientes.objects.filter(nutri=request.user).filter(id=id_paciente).first()
+    if not paciente:
+        messages.add_message(request, constants.ERROR, 'Paciente não encontrado.')
+        return redirect('/plano_alimentar_listar/')
+    if request.method == "POST":
+        id_refeicao = request.POST.get('refeicao')
+        imagem = request.FILES.get('imagem')
+        descricao = request.POST.get('descricao')
+
+        nova_opcao = Opcao(refeicao_id=id_refeicao,
+                           imagem=imagem,
+                           descricao=descricao)
+        nova_opcao.save()
+        messages.add_message(request, constants.SUCCESS, 'Opção cadastrada com sucesso!')
+        return redirect(f'/plano_alimentar/{id_paciente}')
