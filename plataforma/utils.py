@@ -15,7 +15,8 @@ def pacientes_validate(request, nome, sexo, idade, email, telefone):
         return False
 
     pacientes = Pacientes.objects.filter(email=email)
-
+    # TODO: a verificação só deve ser aplicada para os pacientes do usuário.
+    # TODO: Em caso de outro usuário, pode cadastrar um e-mail similar.
     if pacientes.exists():
         messages.add_message(request, constants.ERROR, 'Já existe um paciente com esse E-mail')
         return False

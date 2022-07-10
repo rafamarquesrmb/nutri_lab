@@ -81,19 +81,19 @@ def dados_paciente(request, id):
         colesterol_total = request.POST.get('ctotal')
         trigliceridios = request.POST.get('trigliceridios')
         if not dados_paciente_validate(request, peso, altura, gordura, musculo, hdl,
-                            ldl, colesterol_total, trigliceridios):
+                                       ldl, colesterol_total, trigliceridios):
             return redirect(f'/dados_paciente/{paciente.id}')
 
         dados = DadosPaciente(paciente=paciente,
-                                 data=datetime.now(),
-                                 peso=peso,
-                                 altura=altura,
-                                 percentual_gordura=gordura,
-                                 percentual_musculo=musculo,
-                                 colesterol_hdl=hdl,
-                                 colesterol_ldl=ldl,
-                                 colesterol_total=colesterol_total,
-                                 trigliceridios=trigliceridios)
+                              data=datetime.now(),
+                              peso=peso,
+                              altura=altura,
+                              percentual_gordura=gordura,
+                              percentual_musculo=musculo,
+                              colesterol_hdl=hdl,
+                              colesterol_ldl=ldl,
+                              colesterol_total=colesterol_total,
+                              trigliceridios=trigliceridios)
 
         dados.save()
 
@@ -112,3 +112,28 @@ def grafico_peso(request, id):
     data = {'peso': pesos,
             'labels': labels}
     return JsonResponse(data)
+
+
+@login_required(login_url='/auth/logar/')
+def plano_alimentar_listar(request):
+    if request.method == "GET":
+        pacientes_from_nutri = Pacientes.objects.filter(nutri=request.user).all()
+        context = {
+            'pacientes': pacientes_from_nutri
+        }
+        return render(request, 'plano_alimentar_listar.html', context)
+
+
+@login_required(login_url='/auth/logar/')
+def plano_alimentar(request, id):
+    paciente = Pacientes.objects.filter(nutri=request.user).filter(id=id).first()
+    if not paciente:
+        messages.add_message(request, constants.ERROR, 'Paciente não encontrado.')
+        return redirect('/plano_alimentar_listar/')
+    if request.method == "GET":
+        context = {
+            'pacientes': paciente
+        }
+        return render(request, 'plano_alimentar.html', context)
+
+
