@@ -65,6 +65,70 @@
         </tbody>
     </table>
 
+    <div>
+        <canvas id="myChart" style="width: 100%; max-height: 60vh"></canvas>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+
+        fetch("{% url 'grafico_peso' paciente.id %}", {
+            method: 'POST',
+        }).then(function (result) {
+            return result.json()
+        }).then(function (data_paciente) {
+
+            const data = {
+                labels: data_paciente['labels'],
+                datasets: [{
+                    label: 'Peso (Kg)',
+                    backgroundColor: 'rgba(39, 219, 143,.5)',
+                    borderColor: '#27DB8F',
+                    data: data_paciente['peso'],
+                    pointStyle: 'circle',
+                    pointRadius: 8,
+                    pointHoverRadius: 10,
+                    tension: .5,
+                }]
+            };
+
+            const config = {
+
+                type: 'line',
+                data: data,
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Gráfico de progressão do peso do paciente',
+                            font: {
+                                size: 21
+                            },
+                            padding: {
+                                top: 30,
+                                bottom: 20
+                            }
+                        }
+                    }
+
+                }
+            };
+
+            const myChart = new Chart(
+                document.getElementById('myChart'),
+                config
+            );
+
+
+        })
+
+
+    </script>
+
+
+
+
     <div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
          aria-hidden="true">
         <div class="modal-dialog" role="document">
@@ -203,5 +267,7 @@
             </div>
         </div>
     </div>
+
+
 
 {% endblock %}

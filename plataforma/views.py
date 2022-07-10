@@ -101,3 +101,14 @@ def dados_paciente(request, id):
         return redirect(f'/dados_paciente/{paciente.id}')
 
 
+@login_required(login_url='/auth/logar/')
+@csrf_exempt
+def grafico_peso(request, id):
+    paciente = Pacientes.objects.get(id=id)
+    dados = paciente.dadospaciente_set.order_by('data').all()[:10]
+    pesos = [dado.peso for dado in dados]
+    # labels = list(range(len(pesos)))
+    labels = [dado.data.strftime('%d/%m/%Y') for dado in dados]
+    data = {'peso': pesos,
+            'labels': labels}
+    return JsonResponse(data)
